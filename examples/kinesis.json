@@ -1,20 +1,20 @@
 {
   "Records": [
-    {
-      "kinesis": {
-        "partitionKey": "partitionKey-03",
-        "kinesisSchemaVersion": "1.0",
-        "data": "H4sIAAAAAAAAAHWPwQqCQBCGX0Xm7EFtK+smZBEUgXoLCdMhFtKV3akI8d0bLYmibvPPN3wz00CJxmQnTO41whwWQRIctmEcB6sQbFC3CjW3XW8kxpOpP+OC22d1Wml1qZkQGtoMsScxaczKN3plG8zlaHIta5KqWsozoTYw3/djzwhpLwivWFGHGpAFe7DL68JlBUk+l7KSN7tCOEJ4M3/qOI49vMHj+zCKdlFqLaU2ZHV2a4Ct/an0/ivdX8oYc1UVX860fQDQiMdxRQEAAA==",
-        "sequenceNumber": "49545115243490985018280067714973144582180062593244200961",
-        "approximateArrivalTimestamp": 1428537600
-      },
-      "eventSource": "aws:kinesis",
-      "eventID": "shardId-000000000000:49545115243490985018280067714973144582180062593244200961",
-      "invokeIdentityArn": "arn:aws:iam::EXAMPLE",
-      "eventVersion": "1.0",
-      "eventName": "aws:kinesis:record",
-      "eventSourceARN": "arn:aws:kinesis:EXAMPLE",
-      "awsRegion": "us-east-1"
-    }
+      {
+          "kinesis": {
+              "kinesisSchemaVersion": "1.0",
+              "partitionKey": "291adf8555c50610ab4a94a3ed695d77",
+              "sequenceNumber": "49597864129529058735465263665285980206643892917484126210",
+              "data": "H4sIAAAAAAAAAMWRTW/aQBCG/8uqRxbvt3eRckAtIKQCUvGpAUXGHmBVf1DvGoow/z0LbQ49RIpUJT3OzKuZeZ/3gkpwLt1Bcj4AGqAvw2T4NBstl8PJCPVQfaqgCW0eCy0ZF0QzHtpFvZs0dXsIkyg9uahIy02eRnsoihrncKwPLk/P7rdy6RtIyyBlhJqIxBHj0eOnr8NktEzWihIlNGwkpVwwmRu1lZIybvKN4syIsMK1G5c19uBtXY1t4aFxaPCI3N4ecFjv0Pp+ZnSEyt8mF2Tz28tCx1JwrZVgTGoVE0MMZ8JQKg2NlZHEMKMN50oQwgTnhMSKqnDR2wDFp2XwR6XiWulYSclN7wXWHzOYxJjxhMQDaQZM9oPk+8qDUhnnOsZKbSkW0gisDRNYaTCgpBDbLVv56Xy8WPnZYj5NFt+m80knWJ90M1sU1kFWV7nritRDlZ07v4dN21S22pV19aOf1WXnoDnaDB6CMGg8th7KXgO7gOgBWnwK72O6qoIX+OWbNPOQjy0UeeBzQXAjFSx81AsN/GxD9XSP5S10/o7gVdToeu39W9jx/wqbdp/rtvLdC5rsXn1Y0O9w/h1DXl+fAcpXqNOmBAAA",
+              "approximateArrivalTimestamp": 1563868780.975
+          },
+          "eventSource": "aws:kinesis",
+          "eventVersion": "1.0",
+          "eventID": "shardId-000000000000:49597864129529058735465263665285980206643892917484126210",
+          "eventName": "aws:kinesis:record",
+          "invokeIdentityArn": "arn:aws:iam::374852340823:role/service-role/print-cw-logs-role-6jsel64a",
+          "awsRegion": "us-east-1",
+          "eventSourceARN": "arn:aws:kinesis:us-east-1:374852340823:stream/cw-logs"
+      }
   ]
 }
