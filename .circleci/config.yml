@@ -13,10 +13,12 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/node:10.16.0
+      - image: nikolaik/python-nodejs:python3.7-nodejs10
     working_directory: ~/repo
     steps:
       - checkout
+      - run: pip install awscli
+      - run: pip install aws-sam-cli
       - run: npm ci
       - run: npm run package
       - run: npm run publish
