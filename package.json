@@ -6,7 +6,9 @@
   "main": "commitlint.config.js",
   "scripts": {
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "package": "sam package --template-file template.yml --output-template-file packaged.yml --s3-bucket sar-async-lambda-metrics",
+    "publish": "sam publish --template packaged.yml --region us-east-1"
   },
   "repository": {
     "type": "git",
