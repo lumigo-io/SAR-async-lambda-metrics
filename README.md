@@ -4,6 +4,31 @@
 
 A Serverless application that parses custom metrics from CloudWatch Logs and sends them to CloudWatch as custom metrics.
 
+This application deploys a single Lambda function with a name prefixed with `serverlessrepo-async-custom-metrics`. This function supports both `CloudWatch Logs` as well as `Kinesis` as event source.
+
+You can subscribe the function to CloudWatch log groups directly. But since you can only have one subscription filter per log group and you probably want to ship your logs elsewhere (maybe to an ELK stack?), most likely you'll subscribe log groups to a Kinesis stream first, then subscribe this `serverlessrepo-async-custom-metrics` function to the Kinesis stream.
+
+To help you manage the subscription of your logs, consider using [this Serverless application](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:374852340823:applications~auto-subscribe-log-group-to-arn).
+
+Once subscribed, you can record custom metrics by writing to `stdout`. The function would parse the custom metrics out of your logs and send them to CloudWatch as metrics.
+
+The format of the custom metric needs to follow the convention:
+
+```MONITORING|<metric_value>|<metric_unit>|<metric_name>|<namespace>|<dimensions>```
+
+where:
+
+* `metric_value`: `float`
+* `metric_unit`: any of the [allowed CloudWatch metric units](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html)
+* `metric_name`: `string`, what you want to call your metric
+* `namespace`: `string`, your custom metrics would appear under this namespace
+* `dimensions`: `comma separated key value pairs`, e.g. `service=content-item,region=eu-west-1`
+
+e.g.
+
+`MONITORING|1|Count|request_count|theburningmonk.com|service=content-item,region=eu-west-1`
+`MONITORING|42.7|Milliseconds|latency|theburningmonk.com|service=content-item,region=eu-west-1`
+
 ## Deploying to your account (via the console)
 
 Go to this [page](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:374852340823:applications~async-custom-metrics) and click the `Deploy` button.
