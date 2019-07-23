@@ -1,5 +1,7 @@
 # SAR-async-lambda-metrics
 
+[![CircleCI](https://circleci.com/gh/theburningmonk/SAR-async-lambda-metrics.svg?style=svg)](https://circleci.com/gh/theburningmonk/SAR-async-lambda-metrics)
+
 A Serverless application that parses custom metrics from CloudWatch Logs and sends them to CloudWatch as custom metrics.
 
 ## Deploying to your account (via the console)
