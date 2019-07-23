@@ -8,7 +8,11 @@ This application deploys a single Lambda function with a name prefixed with `ser
 
 You can subscribe the function to CloudWatch log groups directly. But since you can only have one subscription filter per log group and you probably want to ship your logs elsewhere (maybe to an ELK stack?), most likely you'll subscribe log groups to a Kinesis stream first, then subscribe this `serverlessrepo-async-custom-metrics` function to the Kinesis stream.
 
-Once subscribed, you can record custom metrics by writing to `stdout`. The format of the custom metric needs to follow the convention:
+To help you manage the subscription of your logs, consider using [this Serverless application](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:374852340823:applications~auto-subscribe-log-group-to-arn).
+
+Once subscribed, you can record custom metrics by writing to `stdout`. The function would parse the custom metrics out of your logs and send them to CloudWatch as metrics.
+
+The format of the custom metric needs to follow the convention:
 
 ```MONITORING|<metric_value>|<metric_unit>|<metric_name>|<namespace>|<dimensions>```
 
