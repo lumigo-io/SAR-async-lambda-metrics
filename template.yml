@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: async-custom-metrics
+    Description: Parses custom metrics from CloudWatch Logs and publishes them to CloudWatch
+    Author: Lumigo
+    SpdxLicenseId: MIT
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
+    Labels: ['lambda', 'metrics', 'cloudwatch']
+    HomePageUrl: https://github.com/theburningmonk/SAR-async-lambda-metrics
+    SemanticVersion: 0.1.0
+    SourceCodeUrl: https://github.com/theburningmonk/SAR-async-lambda-metrics
+
+Parameters:
+  EventSourceType:
+    Type: String
+    Default: 'Lambda'
+    Description: >
+      What's the event source you will intend to use?
+      If logs are pushed from CloudWatch Logs to Lambda directly, then use 'Lambda'.
+      If logs are pushed to a Kinesis Stream first, then use 'Kinesis'.
+      Other event sources are not supported (yet).
+    AllowedValues:
+      - 'Lambda'
+      - 'Kinesis'  
+  TimeoutSeconds:
+    Type: Number
+    Default: 30
+    MaxValue: 900
+    MinValue: 1
+    Description: >
+      (optional) Timeout for the Lambda function that would ship metrics to CloudWatch. Defaults to 30s.
+  KinesisStreamArn:
+    Type: String
+    Default: ''
+    Description: >
+      (optional) Only relevant to the Kinesis event source type. The ARN to the Kinesis stream to 
+      subscribe the function to.
+  KinesisStreamBatchSize:
+    Type: Number
+    Default: 100
+    Description: >
+      (optional) Only relevant to the Kinesis event source type. The batch size to use for the 
+      subscription.
+
+Conditions:
+  IsLambda: !Equals [!Ref EventSourceType, 'Lambda']
+  IsKinesis: !Equals [!Ref EventSourceType, 'Kinesis']
+
+Globals:
+  Function:
+    Timeout: !Ref TimeoutSeconds
+    Runtime: nodejs8.10
+    MemorySize: 1024
+
+Resources:
+  ConvertLambda:
+    Type: AWS::Serverless::Function
+    Condition: IsLambda
+    Properties:
+      Handler: functions/index.handler
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action: cloudwatch:PutMetricData
+            Resource: "*"
+
+  ConvertKinesis:
+    Type: AWS::Serverless::Function
+    Condition: IsKinesis
+    Properties:
+      Handler: functions/index.handler
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action: cloudwatch:PutMetricData
+            Resource: "*"
+      Events:
+        Stream:
+          Type: Kinesis
+          Properties:
+            Stream: !Ref KinesisStreamArn
+            BatchSize: !Ref KinesisStreamBatchSize
+            StartingPosition: LATEST
+
+Outputs:
+  ConvertLambdaFunctionName:
+    Description: Name of the Lambda function name
+    Value: 
+      !If [
+        IsLambda, 
+        !Ref ConvertLambda, 
+        !Ref ConvertKinesis
+      ]
+
+  ConvertLambdaFunctionArn:
+    Description: ARN of the Lambda function name
+    Value: 
+      !If [
+        IsLambda, 
+        !GetAtt ConvertLambda.Arn, 
+        !GetAtt ConvertKinesis.Arn
+      ]

@@ -1,0 +1,58 @@
+{
+  "name": "sar-async-lambda-metrics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Serverless application that parses custom metrics from CloudWatch Logs and sends them to CloudWatch as custom metrics.",
+  "main": "commitlint.config.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theburningmonk/SAR-async-lambda-metrics.git"
+  },
+  "keywords": [],
+  "author": "Yan Cui <theburningmonk@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theburningmonk/SAR-async-lambda-metrics/issues"
+  },
+  "homepage": "https://github.com/theburningmonk/SAR-async-lambda-metrics#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^8.0.0",
+    "@commitlint/config-conventional": "^8.0.0",
+    "coveralls": "^3.0.2",
+    "eslint": "^5.13.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "husky": "^3.0.0",
+    "jest": "^24.4.0",
+    "lint-staged": "^9.1.0"
+  },
+  "greenkeeper": {
+    "ignore": [
+      "eslint"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint"
+    ]
+  },
+  "dependencies": {
+    "aws-sdk": "^2.497.0",
+    "debug": "^4.1.1",
+    "lodash": "^4.17.15"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "messageType": "DATA_MESSAGE",
+  "owner": "374852340823",
+  "logGroup": "/aws/lambda/hello-devopsdays",
+  "logStream": "2019/07/23/[$LATEST]9bc02c5f80944c0ea1360faa9a68f914",
+  "subscriptionFilters": [
+      "LambdaStream_print-cw-logs"
+  ],
+  "logEvents": [
+      {
+          "id": "34874920119968482746143972702572472247946445098052747264",
+          "timestamp": 1563845504242,
+          "message": "2019-07-23T01:31:44.241Z\t63cdfa76-f4f8-4ee8-a2f3-dc189533753d\tINFO\tMONITORING|42.0|Milliseconds|latency|theburningmonk.com|service=content-item,region=eu-west-1\n",
+          "extractedFields": {
+              "event": "INFO\tMONITORING|42.0|Milliseconds|latency|theburningmonk.com|service=content-item,region=eu-west-1\n",
+              "request_id": "63cdfa76-f4f8-4ee8-a2f3-dc189533753d",
+              "timestamp": "2019-07-23T01:31:44.241Z"
+          }
+      },
+      {
+          "id": "34874920119968482746143972702572472247946445098052747265",
+          "timestamp": 1563845504242,
+          "message": "2019-07-23T01:31:44.242Z\t63cdfa76-f4f8-4ee8-a2f3-dc189533753d\tINFO\tMONITORING|1|Count|request_count|theburningmonk.com|service=content-item,region=eu-west-1\n",
+          "extractedFields": {
+              "event": "INFO\tMONITORING|1|Count|request_count|theburningmonk.com|service=content-item,region=eu-west-1\n",
+              "request_id": "63cdfa76-f4f8-4ee8-a2f3-dc189533753d",
+              "timestamp": "2019-07-23T01:31:44.242Z"
+          }
+      }
+  ]
+}
