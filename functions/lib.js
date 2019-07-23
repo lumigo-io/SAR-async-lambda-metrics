@@ -61,7 +61,7 @@ const parseLambdaLogData = event => {
 }
 
 const parseCWLogEvent = data => {
-	const compressedPayload = new Buffer(data, 'base64')
+	const compressedPayload = Buffer.from(data, 'base64')
 	const payload = zlib.gunzipSync(compressedPayload)
 	const json = payload.toString('utf8')
 
@@ -109,14 +109,14 @@ const extractLogEvents = event => {
 		return event.Records.map(record => parseCWLogEvent(record.kinesis.data))
 	}
 
-	throw new Error('Unsupported event source. Only CloudWatch Logs and Kinesis are supported.')
+	return []
 }
 
 const processAll = async (cwLogEvents) => {
 	const metrics = _.flatMap(cwLogEvents, cwLogEvent => {
 		// only Lambda logs are relevant
 		if (!cwLogEvent.logGroup.startsWith('/aws/lambda')) {
-			return
+			return []
 		}
 
 		return cwLogEvent.logEvents

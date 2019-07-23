@@ -1,0 +1,12 @@
+{
+  "records": [
+    {
+      "recordId": "49578734086442259037497492980620233840400173390482112514000000",
+      "data": "H4sIAAAAAAAAAL1Ry47aMBT9l6hLTPxKbCPNArWAkAaQSlYdEDLODWM1DxobKCL8ew3TWXRRqepoZuHFvT6653WJKnBO7yA77yEaRF+G2XAzGy2Xw8ko6kXNqYY2rJngMqGMY0lZWJfNbtI2h334ifXJxaWutrmOn6EsG5TDsdm7XJ/dC3LpW9BVgFJMVIxFTFn89OlxmI2W2VptDaYmKSRWnBsMmrAUF1orncpCER5OuMPWmdbuvW3qsS09tC4aPEWPd86X45t9a2uPzAkFPhet77yjI9T+Br1ENr954FJwFUQQpVLJJRU8JZwpQQWmiaBc0PAUTzlPsJI4CQBB05sEb0NKXlfBMElSJnmSYE457b2m99sdwgJRlmEyYGTAeZ9y8m3lU2byQosUFbyQiANIpGnBUG6IVAljImH5yk/n48XKzxbzabb4Op1POk77uJvZsrQOTFPnriu1h9qcO/8M20Nb23pXNfX3vmmqzkF7tAYeAjBgPLIeql4Lu5DZAxzQKchHZFUHL/DTt9p4yMcWyjzkc4ngllSw8FESWvhxCNPmXsu/pPNnBX+NOrpee28rO3lT2fT/yybd5+ZQ++41GnOfPqzod6B/n5LpreT19RdQXz8RtwQAAA==",
+      "approximateArrivalTimestamp": 1510254469499
+    }   
+  ],
+  "region": "us-east-1",
+  "deliveryStreamArn": "arn:aws:firehose:us-east-1:123456789012:deliverystream/copy-cwl-lambda-invoke-input-151025436553-Firehose-8KILJ01Q5OBN",
+  "invocationId": "a7234216-12b6-4bc0-96d7-82606c0e80cf"
+}
