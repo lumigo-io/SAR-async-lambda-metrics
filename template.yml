@@ -11,7 +11,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['lambda', 'metrics', 'cloudwatch']
     HomePageUrl: https://github.com/theburningmonk/SAR-async-lambda-metrics
-    SemanticVersion: 0.1.0
+    SemanticVersion: 1.0.0
     SourceCodeUrl: https://github.com/theburningmonk/SAR-async-lambda-metrics
 
 Parameters:
