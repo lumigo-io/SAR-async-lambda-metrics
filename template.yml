@@ -6,13 +6,13 @@ Metadata:
     Name: async-custom-metrics
     Description: Parses custom metrics from CloudWatch Logs and publishes them to CloudWatch
     Author: Lumigo
-    SpdxLicenseId: MIT
+    SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE
     ReadmeUrl: README.md
     Labels: ['lambda', 'metrics', 'cloudwatch']
-    HomePageUrl: https://github.com/theburningmonk/SAR-async-lambda-metrics
-    SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/theburningmonk/SAR-async-lambda-metrics
+    HomePageUrl: https://github.com/lumigo/SAR-async-lambda-metrics
+    SemanticVersion: 1.0.1
+    SourceCodeUrl: https://github.com/lumigo/SAR-async-lambda-metrics
 
 Parameters:
   EventSourceType:
