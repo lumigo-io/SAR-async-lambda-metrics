@@ -44,7 +44,10 @@ const parseLambdaLogData = event => {
 	debug('Parsing lambda log event %o', event)
   
 	const rawEvent = _.get(event, 'extractedFields.event', event.message)
-	const timestamp = _.get(event, 'extractedFields.timestamp', event.timestamp)
+	const timestamp = _.get(
+		event, 
+		'extractedFields.timestamp', 
+		new Date(event.timestamp).toJSON())
 
 	const metric = tryParseEvent(rawEvent)
 
