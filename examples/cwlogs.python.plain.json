@@ -1,0 +1,16 @@
+{
+  "messageType": "DATA_MESSAGE",
+  "owner": "374852340823",
+  "logGroup": "/aws/lambda/python-test",
+  "logStream": "2019/07/23/[$LATEST]9bc02c5f80944c0ea1360faa9a68f914",
+  "subscriptionFilters": [
+      "LambdaStream_print-cw-logs"
+  ],
+  "logEvents": [
+      {
+          "id": "34958974344607201648615039197958100672267228441392775168",
+          "timestamp": 1567614626031,
+          "message": "MONITORING|42.0|Milliseconds|latency|theburningmonk.com|service=content-item,region=eu-west-1\n"
+      }
+  ]
+}

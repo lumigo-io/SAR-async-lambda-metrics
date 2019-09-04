@@ -70,6 +70,17 @@ test('when the message is not in the right format, it should be ignored', async 
 	expect(mockPutMetricData).not.toBeCalled()
 })
 
+test('when the message is from Python, it should parse and publish', async () => {
+	const rawEvent = require('../examples/cwlogs.python.plain.json')
+	const event = genCwLogsEvent(rawEvent)
+	const handler = require('./index').handler  
+	await handler(event)
+	expect(mockPutMetricData).toBeCalled()
+	const [req] = mockPutMetricData.mock.calls[0]
+	expect(req.Namespace).toBe('theburningmonk.com')
+	expect(req.MetricData).toHaveLength(1)
+})
+
 function genCwLogsEvent(payload) {
 	const json = JSON.stringify(payload)
 	const data = zlib.gzipSync(Buffer.from(json, 'utf8')).toString('base64')
