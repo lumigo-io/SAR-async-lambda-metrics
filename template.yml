@@ -46,11 +46,14 @@ Parameters:
       (optional) Only relevant to the Kinesis event source type. The batch size to use for the 
       subscription.
   RecordLambdaUsageMetrics:
-    Type: Boolean
-    Default: true
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
     Description: >
       (optional) Whether to collect Lambda usage metrics (i.e. billed duration, memory size, 
-      max memory used) from the logs and turn them into metrics.
+      max memory used) from the logs and turn them into metrics. "true" or "false".
 
 Conditions:
   IsLambda: !Equals [!Ref EventSourceType, 'Lambda']
