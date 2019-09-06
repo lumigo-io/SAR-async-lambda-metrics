@@ -49,6 +49,8 @@ AutoDeployMyAwesomeLambdaLayer:
       TimeoutSeconds: <defaults to 300>
       KinesisStreamArn: <ARN for the Kinesis stream if EventSourceType is Kinesis>
       KinesisStreamBatchSize: <defaults to 100>
+      RecordLambdaUsageMetrics: <"true" or "false">
+      RecordLambdaCostMetric: <"true" or "false">
 ```
 
 To do the same via CloudFormation or the Serverless framework, you need to first add the following `Transform`:
@@ -68,3 +70,7 @@ For more details, read this [post](https://theburningmonk.com/2019/05/how-to-inc
 `KinesisStreamArn`: (optional) Only relevant to the Kinesis event source type. The ARN to the Kinesis stream to subscribe the function to.
 
 `KinesisStreamBatchSize`: (optional) Only relevant to the Kinesis event source type. The batch size to use for the subscription.
+
+`RecordLambdaUsageMetrics`: (optional) Whether to collect Lambda usage metrics (i.e. billed duration, memory size and max memory used) from the logs and turn them into metrics. Allowed values are `"true"` or `"false"`.
+
+`RecordLambdaCostMetric`: (optional) Whether to report estimated cost for Lambda functions as metrics. Allowed values are `"true"` or `"false"`.

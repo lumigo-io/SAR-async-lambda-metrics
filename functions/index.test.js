@@ -171,6 +171,39 @@ describe('when RECORD_LAMBDA_USAGE_METRICS is enabled', () => {
 				Value: '$LATEST'
 			})
 		})
+    
+		const billedDuration = req.MetricData.find(x => x.MetricName === 'BilledDuration')
+		expect(billedDuration.Unit).toBe('Milliseconds')
+		expect(billedDuration.Value).toBe(100)
+    
+		const memorySize = req.MetricData.find(x => x.MetricName === 'MemorySize')
+		expect(memorySize.Unit).toBe('Megabytes')
+		expect(memorySize.Value).toBe(128)
+    
+		const memoryUsed = req.MetricData.find(x => x.MetricName === 'MemoryUsed')
+		expect(memoryUsed.Unit).toBe('Megabytes')
+		expect(memoryUsed.Value).toBe(56)
+	})
+})
+
+describe('when RECORD_LAMBDA_USAGE_METRICS is disabled', () => {
+	beforeEach(() => {
+		process.env.RECORD_LAMBDA_USAGE_METRICS = 'false'
+	})
+
+	test('lambda usage metrics are ignored', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId: f631edda-b729-4c80-bfe2-47587a314e7c Duration: 10.74 ms Billed Duration: 100 ms Memory Size: 128 MB Max Memory Used: 56 MB Init Duration: 118.64 ms\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).not.toBeCalled()
 	})
 })
 
@@ -185,6 +218,85 @@ describe('when RECORD_LAMBDA_USAGE_METRICS is not set', () => {
 			id: '34874920119968482746143972702572472247946445098052747264',
 			timestamp: 1563845504242,
 			message: 'REPORT RequestId: f631edda-b729-4c80-bfe2-47587a314e7c Duration: 10.74 ms Billed Duration: 100 ms Memory Size: 128 MB Max Memory Used: 56 MB Init Duration: 118.64 ms\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).not.toBeCalled()
+	})
+})
+
+describe('when RECORD_LAMBDA_COST_METRIC is enabled', () => {
+	beforeEach(() => {
+		process.env.RECORD_LAMBDA_COST_METRIC = 'true'
+	})
+
+	test('cost metric is published', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId:\tf631edda-b729-4c80-bfe2-47587a314e7c\tDuration: 10.74 ms\tBilled Duration: 100 ms\tMemory Size: 128 MB\tMax Memory Used: 56 MB\tInit Duration: 118.64 ms\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).toBeCalled()
+		const [req] = mockPutMetricData.mock.calls[0]
+		expect(req.Namespace).toBe('AWS/Lambda')
+		expect(req.MetricData).toHaveLength(1)
+    
+		req.MetricData.forEach(metricData => {
+			expect(metricData.Dimensions).toContainEqual({
+				Name: 'FunctionName',
+				Value: 'hello-devopsdays'
+			})
+			expect(metricData.Dimensions).toContainEqual({
+				Name: 'FunctionVersion',
+				Value: '$LATEST'
+			})
+			expect(metricData.Unit).toBe('None')
+			expect(metricData.Value).toBe(0.000000208)
+		})
+	})
+})
+
+describe('when RECORD_LAMBDA_COST_METRIC is disabled', () => {
+	beforeEach(() => {
+		process.env.RECORD_LAMBDA_COST_METRIC = 'false'
+	})
+
+	test('cost metric is not published', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId:\tf631edda-b729-4c80-bfe2-47587a314e7c\tDuration: 10.74 ms\tBilled Duration: 100 ms\tMemory Size: 128 MB\tMax Memory Used: 56 MB\tInit Duration: 118.64 ms\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).not.toBeCalled()
+	})
+})
+
+describe('when RECORD_LAMBDA_COST_METRIC is not set', () => {
+	beforeEach(() => {
+		delete process.env.RECORD_LAMBDA_COST_METRIC
+	})
+
+	test('cost metric is not published', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId:\tf631edda-b729-4c80-bfe2-47587a314e7c\tDuration: 10.74 ms\tBilled Duration: 100 ms\tMemory Size: 128 MB\tMax Memory Used: 56 MB\tInit Duration: 118.64 ms\n',
 			extractedFields: {
 			}
 		}]
