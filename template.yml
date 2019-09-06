@@ -11,7 +11,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['lambda', 'metrics', 'cloudwatch']
     HomePageUrl: https://github.com/lumigo/SAR-async-lambda-metrics
-    SemanticVersion: 1.0.2
+    SemanticVersion: 1.1.0
     SourceCodeUrl: https://github.com/lumigo/SAR-async-lambda-metrics
 
 Parameters:
@@ -45,6 +45,12 @@ Parameters:
     Description: >
       (optional) Only relevant to the Kinesis event source type. The batch size to use for the 
       subscription.
+  RecordLambdaUsageMetrics:
+    Type: Boolean
+    Default: true
+    Description: >
+      (optional) Whether to collect Lambda usage metrics (i.e. billed duration, memory size, 
+      max memory used) from the logs and turn them into metrics.
 
 Conditions:
   IsLambda: !Equals [!Ref EventSourceType, 'Lambda']
@@ -54,7 +60,10 @@ Globals:
   Function:
     Timeout: !Ref TimeoutSeconds
     Runtime: nodejs8.10
-    MemorySize: 1024
+    MemorySize: 128
+    Environment:
+      Variables:
+        RECORD_LAMBDA_USAGE_METRICS: !Ref RecordLambdaUsageMetrics
 
 Resources:
   ConvertLambda:
