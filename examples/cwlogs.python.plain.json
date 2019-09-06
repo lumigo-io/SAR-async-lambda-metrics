@@ -2,7 +2,7 @@
   "messageType": "DATA_MESSAGE",
   "owner": "374852340823",
   "logGroup": "/aws/lambda/python-test",
-  "logStream": "2019/07/23/[$LATEST]9bc02c5f80944c0ea1360faa9a68f914",
+  "logStream": "2019/07/23/[76]9bc02c5f80944c0ea1360faa9a68f914",
   "subscriptionFilters": [
       "LambdaStream_print-cw-logs"
   ],

@@ -10,38 +10,72 @@ const cloudWatch = new AWS.CloudWatch()
 // MONITORING|1|count|request_count|theburningmonk.com|service=content-item,region=eu-west-1\n
 const regex = new RegExp(/(INFO\s*)?MONITORING\|(\d*\.?\d*)\|(\S+)\|(\S+)\|(\S+)\|(\S*)/)
 
-const tryParseEvent = event => {
+function* tryParseCustomMetric(event, dimensions, timestamp) {
 	try {
 		const match = regex.exec(event)
 		if (!match) {
-			return null
+			return
 		}
     
 		// eslint-disable-next-line no-unused-vars
 		const [_matched, _info, value, unit, name, namespace, dimensionsCsv] = match
     
 		// e.g. service=content-item,region=eu-west-1
-		const dimensions = dimensionsCsv
+		const userDimensions = dimensionsCsv
 			.split(',') // ['service=content-item', 'region=eu-west-1']
 			.map(x => {
 				const [ Name, Value ] = x.trim().split('=')
 				return { Name, Value }
 			})
+      
+		dimensions.forEach(({ Name, Value }) => {
+			if (!userDimensions.find(x => x.Name === Name)) {
+				userDimensions.push({ Name, Value })
+			}
+		})
 
-		return {
-			Value: parseFloat(value),
-			Unit: unit,
-			MetricName: name,
-			Namespace: namespace,
-			Dimensions: dimensions
-		}
+		yield makeMetric(parseFloat(value), unit, name, userDimensions, namespace, timestamp)
 	} catch (e) {
-		return null
+		return
 	}
 }
 
-const parseLambdaLogData = event => {
-	debug('Parsing lambda log event %o', event)
+function* tryParseUsageMetrics(event, dimensions, timestamp) {
+	try {
+		if (event.startsWith('REPORT RequestId:')) {
+			const billedDuration = parseFloatWith(/Billed Duration: (.*) ms/i, event)
+			const memorySize = parseFloatWith(/Memory Size: (.*) MB/i, event)
+			const memoryUsed = parseFloatWith(/Max Memory Used: (.*) MB/i, event)
+      
+			const namespace = 'AWS/Lambda'
+
+			yield makeMetric(billedDuration, 'Milliseconds', 'BilledDuration', dimensions, namespace, timestamp)
+			yield makeMetric(memorySize, 'Megabytes', 'MemorySize', dimensions, namespace, timestamp)
+			yield makeMetric(memoryUsed, 'Megabytes', 'MemoryUsed', dimensions, namespace, timestamp)
+		}
+	} catch (e) {
+		return
+	}
+}
+
+function parseFloatWith(regex, input) {
+	const res = regex.exec(input)
+	return parseFloat(res[1])
+}
+
+function makeMetric(value, unit, name, dimensions, namespace, timestamp) {
+	return {
+		Value: value,
+		Unit: unit,
+		MetricName: name,
+		Dimensions: dimensions,
+		Namespace: namespace,
+		Timestamp: timestamp
+	}
+}
+
+function* parseLambdaLogData (dimensions, event) {
+	debug('Parsing lambda log event %o', event)  
   
 	const rawEvent = _.get(event, 'extractedFields.event', event.message)
 	const timestamp = _.get(
@@ -49,15 +83,11 @@ const parseLambdaLogData = event => {
 		'extractedFields.timestamp', 
 		new Date(event.timestamp).toJSON())
 
-	const metric = tryParseEvent(rawEvent)
-
-	if (!metric) {
-		return null
-	}
+	yield* tryParseCustomMetric(rawEvent, dimensions, timestamp)	
   
-	return {
-		Timestamp: timestamp,
-		...metric
+	console.log('record Lambda usage metrics', process.env.RECORD_LAMBDA_USAGE_METRICS)
+	if (process.env.RECORD_LAMBDA_USAGE_METRICS === 'true') {
+		yield* tryParseUsageMetrics(rawEvent, dimensions, timestamp)
 	}
 }
 
@@ -119,16 +149,33 @@ const processAll = async (cwLogEvents) => {
 		if (!cwLogEvent.logGroup.startsWith('/aws/lambda')) {
 			return []
 		}
+    
+		// e.g. "/aws/lambda/service-env-funcName"
+		const functionName = cwLogEvent.logGroup.split('/').reverse()[0]
+    
+		// e.g. "2016/08/17/[76]afe5c000d5344c33b5d88be7a4c55816"
+		const start = cwLogEvent.logStream.indexOf('[')
+		const end = cwLogEvent.logStream.indexOf(']')
+		const functionVersion = cwLogEvent.logStream.substring(start+1, end)
 
-		return cwLogEvent.logEvents
-			.map(parseLambdaLogData)
-			.filter(x => x)
+		const dimensions = [
+			{ Name: 'FunctionName', Value: functionName },
+			{ Name: 'FunctionVersion', Value: functionVersion }
+		]
+
+		return _.flatMap(
+			cwLogEvent.logEvents, 
+			evt => Array.from(parseLambdaLogData(dimensions, evt)))
 	})
   
-	const groupedByNs = _.groupBy(metrics, 'Namespace')
-	for (const namespace of Object.keys(groupedByNs)) {
-		const metricDatum = groupedByNs[namespace]
-		await publish(namespace, metricDatum)
+	if (!_.isEmpty(metrics)) {
+		debug(`publishing ${metrics.length} metrics`)
+    
+		const groupedByNs = _.groupBy(metrics, 'Namespace')
+		for (const namespace of Object.keys(groupedByNs)) {
+			const metricDatum = groupedByNs[namespace]
+			await publish(namespace, metricDatum)
+		}
 	}
 }
 
