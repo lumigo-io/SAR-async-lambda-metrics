@@ -9,9 +9,9 @@ Metadata:
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE
     ReadmeUrl: README.md
-    Labels: ['lambda', 'metrics', 'cloudwatch']
+    Labels: ['lambda', 'metrics', 'cloudwatch', 'monitoring', 'devops']
     HomePageUrl: https://github.com/lumigo/SAR-async-lambda-metrics
-    SemanticVersion: 1.1.0
+    SemanticVersion: 1.2.0
     SourceCodeUrl: https://github.com/lumigo/SAR-async-lambda-metrics
 
 Parameters:
@@ -53,7 +53,17 @@ Parameters:
       - "false"
     Description: >
       (optional) Whether to collect Lambda usage metrics (i.e. billed duration, memory size, 
-      max memory used) from the logs and turn them into metrics. "true" or "false".
+      max memory used) from the logs and turn them into metrics.
+      Allowed values are "true" or "false".
+  RecordLambdaCostMetric:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: >
+      (optional) Whether to report estimated cost for Lambda functions as metrics.
+      Allowed values are "true" or "false".
 
 Conditions:
   IsLambda: !Equals [!Ref EventSourceType, 'Lambda']
@@ -67,6 +77,7 @@ Globals:
     Environment:
       Variables:
         RECORD_LAMBDA_USAGE_METRICS: !Ref RecordLambdaUsageMetrics
+        RECORD_LAMBDA_COST_METRIC: !Ref RecordLambdaCostMetric
 
 Resources:
   ConvertLambda:

@@ -58,6 +58,22 @@ function* tryParseUsageMetrics(event, dimensions, timestamp) {
 	}
 }
 
+function* tryParseCostMetric(event, dimensions, timestamp) {
+	try {
+		if (event.startsWith('REPORT RequestId:')) {
+			const billedDuration = parseFloatWith(/Billed Duration: (.*) ms/i, event)
+			const memorySize = parseFloatWith(/Memory Size: (.*) MB/i, event)
+      
+			const namespace = 'AWS/Lambda'
+			const estimatedCost = (billedDuration / 100) * (memorySize / 128) * 0.000000208
+
+			yield makeMetric(estimatedCost, 'None', 'EstimatedCost', dimensions, namespace, timestamp)
+		}
+	} catch (e) {
+		return
+	}
+}
+
 function parseFloatWith(regex, input) {
 	const res = regex.exec(input)
 	return parseFloat(res[1])
@@ -85,9 +101,12 @@ function* parseLambdaLogData (dimensions, event) {
 
 	yield* tryParseCustomMetric(rawEvent, dimensions, timestamp)	
   
-	console.log('record Lambda usage metrics', process.env.RECORD_LAMBDA_USAGE_METRICS)
 	if (process.env.RECORD_LAMBDA_USAGE_METRICS === 'true') {
 		yield* tryParseUsageMetrics(rawEvent, dimensions, timestamp)
+	}
+  
+	if (process.env.RECORD_LAMBDA_COST_METRIC === 'true') {
+		yield* tryParseCostMetric(rawEvent, dimensions, timestamp)
 	}
 }
 
