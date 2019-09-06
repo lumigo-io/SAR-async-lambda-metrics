@@ -2,6 +2,7 @@ const _ = require('lodash')
 const AWS = require('aws-sdk')
 const zlib = require('zlib')
 const debug = require('debug')('async-lambda-metrics')
+const log = require('@dazn/lambda-powertools-logger')
 const cloudWatch = new AWS.CloudWatch()
 
 // node10.x messages are like this:
@@ -36,6 +37,7 @@ function* tryParseCustomMetric(event, dimensions, timestamp) {
 
 		yield makeMetric(parseFloat(value), unit, name, userDimensions, namespace, timestamp)
 	} catch (e) {
+		log.error('failed to parse custom metric, skipped...', { event, timestamp })
 		return
 	}
 }
@@ -54,6 +56,7 @@ function* tryParseUsageMetrics(event, dimensions, timestamp) {
 			yield makeMetric(memoryUsed, 'Megabytes', 'MemoryUsed', dimensions, namespace, timestamp)
 		}
 	} catch (e) {
+		log.error('failed to parse Lambda usage metrics, skipped...', { event, timestamp })
 		return
 	}
 }
@@ -70,6 +73,7 @@ function* tryParseCostMetric(event, dimensions, timestamp) {
 			yield makeMetric(estimatedCost, 'None', 'EstimatedCost', dimensions, namespace, timestamp)
 		}
 	} catch (e) {
+		log.error('failed to parse Lambda cost metric, skipped...', { event, timestamp })
 		return
 	}
 }
