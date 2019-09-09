@@ -1,0 +1,21 @@
+{
+  "Records": [
+      {
+        "kinesis":{ 
+          "kinesisSchemaVersion": "1.0",
+          "partitionKey": "584525.3221883177",
+          "sequenceNumber": "49599357072362624181150177266295485498723951190950805506",
+          "data": "TU9OSVRPUklOR3w0Mi4wfE1pbGxpc2Vjb25kc3xsYXRlbmN5fHRoZWJ1cm5pbmdtb25rLmNvbXxzZXJ2aWNlPWNvbnRlbnQtaXRlbSxyZWdpb249ZXUtd2VzdC0x",
+          "approximateArrivalTimestamp": 1568069911.564 
+        },
+        "eventSource": "aws:kinesis",
+        "eventVersion": "1.0",
+        "eventID": "shardId-000000000000:49599357072362624181150177266295485498723951190950805506",
+        "eventName": "aws:kinesis:record",
+        "invokeIdentityArn": "arn:aws:iam::50468175XXXX:role/serverlessrepo-async-custom-met-ConvertKinesisRole-X8H8I5NWZL6U",
+        "awsRegion": "us-east-1",
+        "eventSourceARN": "arn:aws:kinesis:us-east-1:50468175XXXX:stream/live-vespa-metrics" 
+      }
+    ]
+}
+
