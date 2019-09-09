@@ -139,6 +139,27 @@ test('when the message is from Python, it should parse and publish', async () =>
 	})
 })
 
+test('when the message is published to Kinesis from EC2, it should parse and publish', async () => {
+	const event = _.cloneDeep(require('../examples/kinesis.ec2.plain.json'))
+	const handler = require('./index').handler  
+	await handler(event)
+	expect(mockPutMetricData).toBeCalled()
+	const [req] = mockPutMetricData.mock.calls[0]
+	expect(req.Namespace).toBe('theburningmonk.com')
+	expect(req.MetricData).toHaveLength(1)
+  
+	req.MetricData.forEach(metricData => {		
+		expect(metricData.Dimensions).toContainEqual({
+			Name: 'service',
+			Value: 'content-item'
+		})
+		expect(metricData.Dimensions).toContainEqual({
+			Name: 'region',
+			Value: 'eu-west-1'
+		})
+	})
+})
+
 describe('when RECORD_LAMBDA_USAGE_METRICS is enabled', () => {
 	beforeEach(() => {
 		process.env.RECORD_LAMBDA_USAGE_METRICS = 'true'

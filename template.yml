@@ -4,14 +4,14 @@ Transform: AWS::Serverless-2016-10-31
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: async-custom-metrics
-    Description: Parses custom metrics from CloudWatch Logs and publishes them to CloudWatch
+    Description: Parses custom metrics and publishes them to CloudWatch
     Author: Lumigo
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE
     ReadmeUrl: README.md
     Labels: ['lambda', 'metrics', 'cloudwatch', 'monitoring', 'devops']
     HomePageUrl: https://github.com/lumigo/SAR-async-lambda-metrics
-    SemanticVersion: 1.2.0
+    SemanticVersion: 1.3.0
     SourceCodeUrl: https://github.com/lumigo/SAR-async-lambda-metrics
 
 Parameters:

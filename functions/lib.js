@@ -2,6 +2,7 @@ const _ = require('lodash')
 const AWS = require('aws-sdk')
 const zlib = require('zlib')
 const debug = require('debug')('async-lambda-metrics')
+const log = require('@dazn/lambda-powertools-logger')
 const cloudWatch = new AWS.CloudWatch()
 
 // node10.x messages are like this:
@@ -36,6 +37,7 @@ function* tryParseCustomMetric(event, dimensions, timestamp) {
 
 		yield makeMetric(parseFloat(value), unit, name, userDimensions, namespace, timestamp)
 	} catch (e) {
+		log.error('failed to parse custom metric, skipped...', { event, timestamp })
 		return
 	}
 }
@@ -54,6 +56,7 @@ function* tryParseUsageMetrics(event, dimensions, timestamp) {
 			yield makeMetric(memoryUsed, 'Megabytes', 'MemoryUsed', dimensions, namespace, timestamp)
 		}
 	} catch (e) {
+		log.error('failed to parse Lambda usage metrics, skipped...', { event, timestamp })
 		return
 	}
 }
@@ -70,6 +73,7 @@ function* tryParseCostMetric(event, dimensions, timestamp) {
 			yield makeMetric(estimatedCost, 'None', 'EstimatedCost', dimensions, namespace, timestamp)
 		}
 	} catch (e) {
+		log.error('failed to parse Lambda cost metric, skipped...', { event, timestamp })
 		return
 	}
 }
@@ -88,6 +92,14 @@ function makeMetric(value, unit, name, dimensions, namespace, timestamp) {
 		Namespace: namespace,
 		Timestamp: timestamp
 	}
+}
+
+function* parseRawLogData (dimensions, logEvent) {
+	debug('Parsing raw log event %o', logEvent)
+  
+	const timestamp = new Date(logEvent.timestamp).toJSON()
+  
+	yield* tryParseCustomMetric(logEvent.event, dimensions, timestamp)
 }
 
 function* parseLambdaLogData (dimensions, event) {
@@ -120,6 +132,15 @@ const parseCWLogEvent = data => {
 	debug(`found [${logEvents.length}] logEvents from ${logGroup} - ${logStream}`)
 
 	return cwLogEvent
+}
+
+const parseKinesisEvent = kinesis => {
+	const event = Buffer.from(kinesis.data, 'base64').toString('utf-8')
+	return {
+		event,
+		isRaw: true,
+		timestamp: kinesis.approximateArrivalTimestamp
+	}
 }
 
 const publish = async (namespace, metricDatum) => {
@@ -156,14 +177,27 @@ const extractLogEvents = event => {
 
 	// Kinesis
 	if (event.Records && event.Records[0].eventSource === 'aws:kinesis') {
-		return event.Records.map(record => parseCWLogEvent(record.kinesis.data))
+		return event.Records.map(record => {
+			try {
+				return parseCWLogEvent(record.kinesis.data)
+			} catch (error) {
+				return parseKinesisEvent(record.kinesis)
+			}
+		})
 	}
 
 	return []
 }
 
 const processAll = async (cwLogEvents) => {
-	const metrics = _.flatMap(cwLogEvents, cwLogEvent => {
+	const metrics = _.flatMap(cwLogEvents, logEvent => {
+		if (logEvent.isRaw) {
+			return Array.from(parseRawLogData([], logEvent))
+		}
+
+		// from here on, we know it's a CW log event
+		const cwLogEvent = logEvent
+
 		// only Lambda logs are relevant
 		if (!cwLogEvent.logGroup.startsWith('/aws/lambda')) {
 			return []
