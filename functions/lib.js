@@ -139,7 +139,8 @@ const parseKinesisEvent = kinesis => {
 	return {
 		event,
 		isRaw: true,
-		timestamp: kinesis.approximateArrivalTimestamp
+		// kinesis timestamp is in seconds, not ms
+		timestamp: kinesis.approximateArrivalTimestamp * 1000
 	}
 }
 
