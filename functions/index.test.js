@@ -147,6 +147,7 @@ test('when the message is published to Kinesis from EC2, it should parse and pub
 	const [req] = mockPutMetricData.mock.calls[0]
 	expect(req.Namespace).toBe('theburningmonk.com')
 	expect(req.MetricData).toHaveLength(1)
+	expect(req.MetricData[0].Timestamp).toBe('2019-09-09T22:58:31.564Z')
   
 	req.MetricData.forEach(metricData => {		
 		expect(metricData.Dimensions).toContainEqual({
