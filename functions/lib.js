@@ -3,6 +3,7 @@ const AWS = require('aws-sdk')
 const zlib = require('zlib')
 const debug = require('debug')('async-lambda-metrics')
 const log = require('@dazn/lambda-powertools-logger')
+const retry = require('async-retry')
 const cloudWatch = new AWS.CloudWatch()
 
 // node10.x messages are like this:
@@ -144,6 +145,14 @@ const parseKinesisEvent = kinesis => {
 	}
 }
 
+const bailIfErrorNotRetryable = (bail) => (error) => {
+	if (!error.retryable) {
+		bail(error)
+	} else {
+		throw error
+	}
+}
+
 const publish = async (namespace, metricDatum) => {
 	const metricData = metricDatum.map(m => {
 		return {
@@ -164,10 +173,21 @@ const publish = async (namespace, metricDatum) => {
 			Namespace: namespace
 		}
   
-		await cloudWatch.putMetricData(req).promise()
-  
-		debug(`sent [${chunk.length}] metrics`)
-	}  
+		await retry(
+			(bail) => cloudWatch.putMetricData(req).promise().catch(bailIfErrorNotRetryable(bail)),
+			{
+				retries: parseInt(process.env.RETRIES || '5'),
+				minTimeout: parseFloat(process.env.RETRY_MIN_TIMEOUT || '1000'),
+				maxTimeout: parseFloat(process.env.RETRY_MAX_TIMEOUT || '60000'),
+				factor: 2,
+				onRetry: (err) => log.warn('retrying publishing CloudWatch metrics...', err)
+			})
+			.then(() => debug(`sent [${chunk.length}] metrics`))
+			.catch(err => log.error(
+				`failed to publish [${chunk.length}] metrics, skipped...`, 
+				{ request: req },
+				err))
+	}
 }
 
 const extractLogEvents = event => {

@@ -1,20 +1,20 @@
 const _ = require('lodash')
 const zlib = require('zlib')
+const AWS = require('aws-sdk')
 
 const mockPutMetricData = jest.fn()
-jest.mock('aws-sdk', () => {
-	return {
-		CloudWatch: jest.fn(() => ({
-			putMetricData: mockPutMetricData
-		}))
-	}
-})
+AWS.CloudWatch.prototype.putMetricData = mockPutMetricData
+
+console.log = jest.fn()
 
 beforeEach(() => {
-	mockPutMetricData.mockReset()
 	mockPutMetricData.mockReturnValue({
 		promise: () => Promise.resolve()
 	})
+})
+
+afterEach(() => {
+	mockPutMetricData.mockReset()
 })
 
 test('when invoked by CloudWatch Logs, it should parse and publish metrics', async () => {
@@ -329,12 +329,56 @@ describe('when RECORD_LAMBDA_COST_METRIC is not set', () => {
 	})
 })
 
-function genCwLogsEvent(payload) {
+describe('error handling', () => {
+	beforeEach(() => mockPutMetricData.mockReset())
+  
+	test('should retry retryable errors when publishing CloudWatch metrics', async () => {
+		givenPutMetricDataFailsWith('ThrottlingException', 'Rate exceeded')
+		givenPutMetricDataSucceeds()
+    
+		const event = _.cloneDeep(require('../examples/cwlogs.json'))
+		const handler = require('./index').handler
+		await expect(handler(event)).resolves.toEqual(undefined)
+		expect(mockPutMetricData).toBeCalledTimes(2)
+	})
+  
+	test('should not retry non-retryable errors when publishing CloudWatch metrics', async () => {
+		givenPutMetricDataFailsWith('Foo', 'Bar', false)
+    
+		const event = _.cloneDeep(require('../examples/cwlogs.json'))
+		const handler = require('./index').handler
+		await expect(handler(event)).resolves.toEqual(undefined)
+		expect(mockPutMetricData).toBeCalledTimes(1)
+	})
+})
+
+const givenPutMetricDataFailsWith = (code, message, retryable = true) => {
+	mockPutMetricData.mockReturnValueOnce({
+		promise: () => Promise.reject(new AwsError(code, message, retryable))
+	})
+}
+
+const givenPutMetricDataSucceeds = () => {
+	mockPutMetricData.mockReturnValueOnce({
+		promise: () => Promise.resolve()
+	})
+}
+
+const genCwLogsEvent = (payload) => {
 	const json = JSON.stringify(payload)
 	const data = zlib.gzipSync(Buffer.from(json, 'utf8')).toString('base64')
 	return {
 		awslogs: {
 			data
 		}
+	}
+}
+
+class AwsError extends Error {
+	constructor (code, message, retryable) {
+		super(message)
+
+		this.code = code
+		this.retryable = retryable
 	}
 }
