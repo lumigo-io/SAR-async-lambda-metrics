@@ -81,7 +81,7 @@ function* tryParseCostMetric(event, dimensions, timestamp) {
 
 function* tryParseColdStartMetric(event, dimensions, timestamp) {
 	try {
-		if (event.startsWith('REPORT RequestId:')) {
+		if (event.startsWith('REPORT RequestId:') && event.includes('Init Duration:')) {
 			const initDuration = parseFloatWith(/Init Duration: (.*) ms/i, event)
       
 			const namespace = 'AWS/Lambda'

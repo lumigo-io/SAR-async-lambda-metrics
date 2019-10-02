@@ -364,6 +364,21 @@ describe('when RECORD_LAMBDA_COLD_START_METRIC is enabled', () => {
 			expect(metricData.Value).toBe(118.64)
 		})
 	})
+
+	test('non-cold start messages are ignored', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId:\tf631edda-b729-4c80-bfe2-47587a314e7c\tDuration: 10.74 ms\tBilled Duration: 100 ms\tMemory Size: 128 MB\tMax Memory Used: 56 MB\t\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).not.toBeCalled()
+	})
 })
 
 describe('when RECORD_LAMBDA_COLD_START_METRIC is disabled', () => {
