@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/semver-1.4.0-blue)](template.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![CircleCI](https://circleci.com/gh/lumigo/SAR-async-lambda-metrics.svg?style=svg)](https://circleci.com/gh/theburningmonk/SAR-async-lambda-metrics) 
+[![CircleCI](https://circleci.com/gh/lumigo/SAR-async-lambda-metrics.svg?style=svg)](https://circleci.com/gh/theburningmonk/SAR-async-lambda-metrics)
 [![Greenkeeper badge](https://badges.greenkeeper.io/lumigo/SAR-async-lambda-metrics.svg)](https://greenkeeper.io/)
 
 A Serverless application that parses custom metrics from CloudWatch Logs and sends them to CloudWatch as custom metrics.
@@ -77,3 +77,5 @@ For more details, read this [post](https://theburningmonk.com/2019/05/how-to-inc
 `RecordLambdaUsageMetrics`: (optional) Whether to collect Lambda usage metrics (i.e. billed duration, memory size and max memory used) from the logs and turn them into metrics. Allowed values are `"true"` or `"false"`.
 
 `RecordLambdaCostMetric`: (optional) Whether to report estimated cost for Lambda functions as metrics. Allowed values are `"true"` or `"false"`.
+
+`RecordLambdaColdStartMetric`: (optional) Whether to report init duration for Lambda functions as metrics. Allowed values are `"true"` or `"false"`.

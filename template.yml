@@ -64,6 +64,15 @@ Parameters:
     Description: >
       (optional) Whether to report estimated cost for Lambda functions as metrics.
       Allowed values are "true" or "false".
+  RecordLambdaColdStartMetric:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: >
+      (optional) Whether to report init duration for Lambda functions as metrics.
+      Allowed values are "true" or "false".
 
 Conditions:
   IsLambda: !Equals [!Ref EventSourceType, 'Lambda']
@@ -78,6 +87,7 @@ Globals:
       Variables:
         RECORD_LAMBDA_USAGE_METRICS: !Ref RecordLambdaUsageMetrics
         RECORD_LAMBDA_COST_METRIC: !Ref RecordLambdaCostMetric
+        RECORD_LAMBDA_COLD_START_METRIC: !Ref RecordLambdaColdStartMetric
 
 Resources:
   ConvertLambda:

@@ -79,6 +79,21 @@ function* tryParseCostMetric(event, dimensions, timestamp) {
 	}
 }
 
+function* tryParseColdStartMetric(event, dimensions, timestamp) {
+	try {
+		if (event.startsWith('REPORT RequestId:')) {
+			const initDuration = parseFloatWith(/Init Duration: (.*) ms/i, event)
+      
+			const namespace = 'AWS/Lambda'
+
+			yield makeMetric(initDuration, 'Milliseconds', 'InitDuration', dimensions, namespace, timestamp)
+		}
+	} catch (e) {
+		log.error('failed to parse Lambda cold start metric, skipped...', { event, timestamp })
+		return
+	}
+}
+
 function parseFloatWith(regex, input) {
 	const res = regex.exec(input)
 	return parseFloat(res[1])
@@ -120,6 +135,10 @@ function* parseLambdaLogData (dimensions, event) {
   
 	if (process.env.RECORD_LAMBDA_COST_METRIC === 'true') {
 		yield* tryParseCostMetric(rawEvent, dimensions, timestamp)
+	}
+
+	if (process.env.RECORD_LAMBDA_COLD_START_METRIC === 'true') {
+		yield* tryParseColdStartMetric(rawEvent, dimensions, timestamp)
 	}
 }
 
