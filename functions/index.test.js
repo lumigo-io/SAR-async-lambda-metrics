@@ -329,6 +329,85 @@ describe('when RECORD_LAMBDA_COST_METRIC is not set', () => {
 	})
 })
 
+describe('when RECORD_LAMBDA_COLD_START_METRIC is enabled', () => {
+	beforeEach(() => {
+		process.env.RECORD_LAMBDA_COLD_START_METRIC = 'true'
+	})
+
+	test('init duration metric is published', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId:\tf631edda-b729-4c80-bfe2-47587a314e7c\tDuration: 10.74 ms\tBilled Duration: 100 ms\tMemory Size: 128 MB\tMax Memory Used: 56 MB\tInit Duration: 118.64 ms\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).toBeCalled()
+		const [req] = mockPutMetricData.mock.calls[0]
+		expect(req.Namespace).toBe('AWS/Lambda')
+		expect(req.MetricData).toHaveLength(1)
+    
+		req.MetricData.forEach(metricData => {
+			expect(metricData.Dimensions).toContainEqual({
+				Name: 'FunctionName',
+				Value: 'hello-devopsdays'
+			})
+			expect(metricData.Dimensions).toContainEqual({
+				Name: 'FunctionVersion',
+				Value: '$LATEST'
+			})
+			expect(metricData.Unit).toBe('Milliseconds')
+			expect(metricData.Value).toBe(118.64)
+		})
+	})
+})
+
+describe('when RECORD_LAMBDA_COLD_START_METRIC is disabled', () => {
+	beforeEach(() => {
+		process.env.RECORD_LAMBDA_COLD_START_METRIC = 'false'
+	})
+
+	test('cold start metric is not published', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId:\tf631edda-b729-4c80-bfe2-47587a314e7c\tDuration: 10.74 ms\tBilled Duration: 100 ms\tMemory Size: 128 MB\tMax Memory Used: 56 MB\tInit Duration: 118.64 ms\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).not.toBeCalled()
+	})
+})
+
+describe('when RECORD_LAMBDA_COLD_START_METRIC is not set', () => {
+	beforeEach(() => {
+		delete process.env.RECORD_LAMBDA_COLD_START_METRIC
+	})
+
+	test('cold start metric is not published', async () => {
+		const rawEvent = _.cloneDeep(require('../examples/cwlogs.plain.json'))
+		rawEvent.logEvents = [{
+			id: '34874920119968482746143972702572472247946445098052747264',
+			timestamp: 1563845504242,
+			message: 'REPORT RequestId:\tf631edda-b729-4c80-bfe2-47587a314e7c\tDuration: 10.74 ms\tBilled Duration: 100 ms\tMemory Size: 128 MB\tMax Memory Used: 56 MB\tInit Duration: 118.64 ms\n',
+			extractedFields: {
+			}
+		}]
+		const event = genCwLogsEvent(rawEvent)
+		const handler = require('./index').handler  
+		await handler(event)
+		expect(mockPutMetricData).not.toBeCalled()
+	})
+})
+
 describe('error handling', () => {
 	beforeEach(() => mockPutMetricData.mockReset())
   
