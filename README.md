@@ -54,6 +54,7 @@ AutoDeployMyAwesomeLambdaLayer:
       KinesisStreamBatchSize: <defaults to 100>
       RecordLambdaUsageMetrics: <"true" or "false">
       RecordLambdaCostMetric: <"true" or "false">
+      RecordLambdaColdStartMetric: <"true" or "false">
 ```
 
 To do the same via CloudFormation or the Serverless framework, you need to first add the following `Transform`:
