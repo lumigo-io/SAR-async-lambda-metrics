@@ -45,6 +45,12 @@ Parameters:
     Description: >
       (optional) Only relevant to the Kinesis event source type. The batch size to use for the 
       subscription.
+  KinesisStreamBatchWindowSeconds:
+    Type: Number
+    Default: 10
+    Description: >
+      (optional) Only relevant to the Kinesis event source type. The maximum amount of time in 
+      seconds to gather records before invoking the function.
   RecordLambdaUsageMetrics:
     Type: String
     Default: "true"
@@ -117,6 +123,7 @@ Resources:
           Properties:
             Stream: !Ref KinesisStreamArn
             BatchSize: !Ref KinesisStreamBatchSize
+            MaximumBatchingWindowInSeconds: !Ref KinesisStreamBatchWindowSeconds
             StartingPosition: LATEST
 
 Outputs:
