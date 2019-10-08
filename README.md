@@ -1,6 +1,6 @@
 # SAR-async-lambda-metrics
 
-[![Version](https://img.shields.io/badge/semver-1.5.1-blue)](template.yml)
+[![Version](https://img.shields.io/badge/semver-1.6.0-blue)](template.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CircleCI](https://circleci.com/gh/lumigo/SAR-async-lambda-metrics.svg?style=svg)](https://circleci.com/gh/theburningmonk/SAR-async-lambda-metrics)
 [![Greenkeeper badge](https://badges.greenkeeper.io/lumigo/SAR-async-lambda-metrics.svg)](https://greenkeeper.io/)
@@ -54,6 +54,7 @@ AutoDeployMyAwesomeLambdaLayer:
       KinesisStreamBatchSize: <defaults to 100>
       RecordLambdaUsageMetrics: <"true" or "false">
       RecordLambdaCostMetric: <"true" or "false">
+      RecordLambdaColdStartMetric: <"true" or "false">
 ```
 
 To do the same via CloudFormation or the Serverless framework, you need to first add the following `Transform`:
