@@ -11,7 +11,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['lambda', 'metrics', 'cloudwatch', 'monitoring', 'devops']
     HomePageUrl: https://github.com/lumigo/SAR-async-lambda-metrics
-    SemanticVersion: 1.5.1
+    SemanticVersion: 1.6.0
     SourceCodeUrl: https://github.com/lumigo/SAR-async-lambda-metrics
 
 Parameters:
@@ -81,7 +81,7 @@ Conditions:
 Globals:
   Function:
     Timeout: !Ref TimeoutSeconds
-    Runtime: nodejs8.10
+    Runtime: nodejs10.x
     MemorySize: 128
     Environment:
       Variables:
