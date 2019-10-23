@@ -11,7 +11,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['lambda', 'metrics', 'cloudwatch', 'monitoring', 'devops']
     HomePageUrl: https://github.com/lumigo/SAR-async-lambda-metrics
-    SemanticVersion: 1.6.0
+    SemanticVersion: 1.7.0
     SourceCodeUrl: https://github.com/lumigo/SAR-async-lambda-metrics
 
 Parameters:
@@ -100,6 +100,12 @@ Resources:
             Effect: Allow
             Action: cloudwatch:PutMetricData
             Resource: "*"
+    
+  ConvertLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: IsLambda
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ConvertLambda}
 
   ConvertKinesis:
     Type: AWS::Serverless::Function
@@ -118,6 +124,12 @@ Resources:
             Stream: !Ref KinesisStreamArn
             BatchSize: !Ref KinesisStreamBatchSize
             StartingPosition: LATEST
+
+  ConvertKinesisLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: IsKinesis
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ConvertKinesis}
 
 Outputs:
   ConvertLambdaFunctionName:
